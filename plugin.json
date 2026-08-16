@@ -1,0 +1,7 @@
+{
+  "name": "katex",
+  "version": "1.0.0",
+  "type": "parser",
+  "blockLanguage": "katex",
+  "main": "index.js"
+}
