@@ -27,6 +27,12 @@ c = \pm\sqrt{a^2 + b^2}
 ```
 ````
 
+Formula text color follows MarkdownEditor's active theme via `PluginThemeContext`, the second
+argument the app passes to `render()` (see `PluginThemeContext` in `@markdown-editor/plugin-sdk`).
+The `code_block` language selector and the diagram edit mode's live overlay syntax-highlight
+`katex` blocks using the grammar this plugin declares via `getSyntaxGrammar()` (see `SyntaxGrammar`
+in `@markdown-editor/plugin-sdk`) — resolved once when the plugin loads, not per render.
+
 ## Develop
 
 ```bash
