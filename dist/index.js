@@ -14506,7 +14506,10 @@ async function render3(source, theme) {
     output: "htmlAndMathml"
   });
   const color = theme ? `color:${theme.text};` : "";
-  return `<span style="${color}"><style>${katex_min_default}</style>${html}</span>`;
+  return `<span style="${color}">${html}</span>`;
+}
+function getStylesheet() {
+  return katex_min_default;
 }
 async function exportFormula(source) {
   return { html: await render3(source) };
@@ -14521,7 +14524,7 @@ var syntaxGrammar = {
 function getSyntaxGrammar() {
   return syntaxGrammar;
 }
-var index_default = { render: render3, export: exportFormula, getSyntaxGrammar };
+var index_default = { render: render3, export: exportFormula, getSyntaxGrammar, getStylesheet };
 export {
   index_default as default
 };
