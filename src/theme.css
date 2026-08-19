@@ -1,0 +1,12 @@
+/*
+ * El HTML que produce KaTeX ya hereda `color` de su contenedor para el
+ * texto de la fórmula — no hace falta reconstruir una paleta completa,
+ * alcanza con seguir el `text` del tema activo acá. `--katex-text` la setea
+ * `render()` como custom property inline en el `<span>` que envuelve cada
+ * fórmula (el único valor que depende de `theme`, no expresable en un
+ * archivo `.css` estático) — sin `theme` (host sin theming), cae a
+ * `inherit`, el fallback del navegador.
+ */
+.katex-formula {
+  color: var(--katex-text, inherit);
+}

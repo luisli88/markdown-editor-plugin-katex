@@ -9,6 +9,7 @@ import katex from "katex";
 // instalación de terceros, US1 — no es un objetivo de este ciclo lograr
 // tipografía matemática pixel-perfect).
 import katexCss from "katex/dist/katex.min.css";
+import themeCss from "./theme.css";
 
 /**
  * Mismo shape que `PluginThemeContext` de `@markdown-editor/plugin-sdk` — no
@@ -42,35 +43,35 @@ interface SyntaxGrammar {
  * síncrono, pero el contrato exige `Promise` (permite motores async como
  * Mermaid) — se envuelve trivialmente.
  *
- * A diferencia de Mermaid (SVG con colores fijos por `fill`), el HTML que
- * produce KaTeX ya hereda `color` de su contenedor para el texto de la
- * fórmula — no hace falta reconstruir una paleta completa. Alcanza con fijar
- * `color` en el contenedor propio al `text` del tema activo: sin esto, el
- * fallback por default del navegador (negro) queda ilegible sobre un fondo
- * oscuro.
+ * La regla de color en sí vive en `theme.css` (`.katex-formula { color:
+ * var(--katex-text, inherit); }`) — acá solo se setea `--katex-text`, la
+ * única parte que depende de `theme` (recibido en runtime, no algo que un
+ * archivo `.css` estático pueda tener adentro). Sin `theme` (host sin
+ * theming) la propiedad no se declara y la regla cae a `inherit`.
  */
 async function render(source: string, theme?: PluginThemeContext): Promise<string> {
   const html = katex.renderToString(source, {
     throwOnError: false,
     output: "htmlAndMathml",
   });
-  const color = theme ? `color:${theme.text};` : "";
-  return `<span style="${color}">${html}</span>`;
+  const style = theme ? ` style="--katex-text:${theme.text}"` : "";
+  return `<span class="katex-formula"${style}>${html}</span>`;
 }
 
 /**
- * El propio CSS de KaTeX (`katex/dist/katex.min.css`, importado arriba) —
- * antes vivía concatenado a mano dentro de cada `render()` (`<style>${katexCss}</style>`),
- * el único mecanismo disponible antes de que el host montara el HTML de un
- * plugin en su propio shadow root: un `<style>` embebido en el HTML de
- * `render()` corre el riesgo de que las reglas de parseo HTML5 lo reubiquen
- * en un `<head>` implícito si termina siendo el primer hijo de nivel
- * superior (el host lo descarta al sanitizar). Separado en `getStylesheet()`
- * el host lo inyecta aparte, una sola vez al cargar el plugin — nunca mezclado
- * dentro del string que devuelve `render()`.
+ * `katex.min.css` (el propio CSS de KaTeX, importado arriba) + `theme.css`
+ * (el nuestro, ver `render()`) — antes vivían concatenados a mano dentro de
+ * cada `render()` (`<style>${katexCss}</style>`), el único mecanismo
+ * disponible antes de que el host montara el HTML de un plugin en su propio
+ * shadow root: un `<style>` embebido en el HTML de `render()` corre el
+ * riesgo de que las reglas de parseo HTML5 lo reubiquen en un `<head>`
+ * implícito si termina siendo el primer hijo de nivel superior (el host lo
+ * descarta al sanitizar). Separado en `getStylesheet()` el host lo inyecta
+ * aparte, una sola vez al cargar el plugin — nunca mezclado dentro del
+ * string que devuelve `render()`.
  */
 function getStylesheet(): string {
-  return katexCss;
+  return `${katexCss}\n${themeCss}`;
 }
 
 /** Único formato de exportación — a diferencia de Mermaid (imagen embebida vs. fuente tal cual), una fórmula KaTeX siempre se exporta como el mismo HTML renderizado, así que no hace falta `getExportRepresentations` (opcional en el contrato). */
