@@ -14506,7 +14506,7 @@ async function render3(source, theme) {
     output: "htmlAndMathml"
   });
   const color = theme ? `color:${theme.text};` : "";
-  return `<style>${katex_min_default}</style><span style="${color}">${html}</span>`;
+  return `<span style="${color}"><style>${katex_min_default}</style>${html}</span>`;
 }
 async function exportFormula(source) {
   return { html: await render3(source) };

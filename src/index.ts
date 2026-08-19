@@ -55,7 +55,15 @@ async function render(source: string, theme?: PluginThemeContext): Promise<strin
     output: "htmlAndMathml",
   });
   const color = theme ? `color:${theme.text};` : "";
-  return `<style>${katexCss}</style><span style="${color}">${html}</span>`;
+  // El host sanitiza este HTML con DOMPurify antes de insertarlo
+  // (`sanitizePluginHtml`, `document-core`) — un `<style>` como primer hijo
+  // de nivel superior, antes de cualquier otro contenido, dispara las
+  // reglas de parseo HTML5 que lo reubican dentro de un `<head>` implícito;
+  // DOMPurify solo devuelve el `<body>` resultante, así que el `<style>`
+  // desaparecía por completo. Anidado DENTRO del `<span>` (no como hermano
+  // antes) sobrevive intacto sin necesitar ninguna excepción de
+  // sanitización — verificado contra el output real de `katex.renderToString`.
+  return `<span style="${color}"><style>${katexCss}</style>${html}</span>`;
 }
 
 /** Único formato de exportación — a diferencia de Mermaid (imagen embebida vs. fuente tal cual), una fórmula KaTeX siempre se exporta como el mismo HTML renderizado, así que no hace falta `getExportRepresentations` (opcional en el contrato). */
